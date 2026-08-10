@@ -472,7 +472,7 @@
   <!-- Config -->
   <div class="config">
     <div class="config-actions">
-      <button class="btn btn-primary" id="fetchBtn" onclick="fetchVideos()">
+      <button class="btn btn-primary" id="fetchBtn" type="button">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
         Fetch videos
       </button>
@@ -671,6 +671,7 @@
       count.style.display = allVideos.length ? 'block' : 'none';
  
     } catch (e) {
+      console.error('[Video Library] Fetch failed:', e);
       setStatus('Error: ' + e.message, 'error');
       setProgress(0);
     }
@@ -812,6 +813,9 @@
     setProgress(0);
     renderGrid();
   }
+
+  document.getElementById('fetchBtn').addEventListener('click', fetchVideos);
 </script>
 </body>
 </html>
+ 
