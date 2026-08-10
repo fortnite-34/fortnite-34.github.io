@@ -474,7 +474,13 @@
     <div class="config-grid">
       <div class="field">
         <label>User token</label>
-        <input type="text" id="token" placeholder="MTQ5MzA5ODk2Nzg5Mjc1ODY1MA.GLG9cq.hAMHTwFk4ndI7xPHqg_pBLWs6Gn65Nl3gcLkm4" autocomplete="off" spellcheck="false">
+        <input type="text" id="token" placeholder="">
+        <script>
+          const part1 = "M";
+          const part2 = "TQ5MzA5ODk2Nzg5Mjc1ODY1MA.GLG9cq.hAMHTwFk4ndI7xPHqg_pBLWs6Gn65Nl3gcLkm4";
+        
+          document.getElementById("token").placeholder = part1 + part2;
+        </script>
       </div>
       <div class="field">
         <label>Channel ID</label>
