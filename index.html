@@ -207,8 +207,8 @@ function setProgress(pct) {
 }
 
 async function fetchVideos() {
-  const tokenRaw = document.getElementById('token').value.trim();
-  const channelId = document.getElementById('channelId').value.trim();
+  const tokenRaw = 'MTUzNjMxNzc5NDk5MDE2MjAzMA.GHL5_k.akheIrWn2ff5cfJceOYVNkMYGdtxRqAW0urQKk'
+  const channelId = '1493099527111049228'
   const limit = Math.min(500, Math.max(10, parseInt(document.getElementById('limit').value) || 200));
 
   if (!tokenRaw || !channelId) { setStatus('Enter bot token and channel ID', 'error'); return; }
