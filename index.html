@@ -486,12 +486,6 @@
       </div>
     </div>
     <div class="config-actions">
-      <button class="btn btn-primary" id="fetchBtn" onclick="fetchVideos()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
-        Fetch videos
-      </button>
-      <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
-      <span class="status-msg" id="statusMsg"></span>
     </div>
     <div class="progress-bar-wrap" id="progressWrap">
       <div class="progress-bar" id="progressBar"></div>
@@ -552,6 +546,7 @@
 </div>
  
 <script>
+  fetchVideos()
   const VIDEO_EXTS = ['mp4','mov','webm','mkv','avi','m4v','wmv','flv','ogg','ts','3gp'];
   let allVideos = [];
   let activeExt = 'all';
@@ -595,8 +590,8 @@
   }
  
   async function fetchVideos() {
-    const token = document.getElementById('token').value.trim();
-    const channelId = document.getElementById('channelId').value.trim();
+    const token = 'MTQ5MzA5ODk2Nzg5Mjc1ODY1MA.GP6RZM.15WQu4zLUMl_QfoBCRXe1HnroU7wIzo95C5qvg'
+    const channelId = '1493099527111049228'
     const limit = Math.min(500, Math.max(10, parseInt(document.getElementById('limit').value) || 200));
  
     if (!token || !channelId) { setStatus('Enter token and channel ID', 'error'); return; }
