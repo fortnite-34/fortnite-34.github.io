@@ -5,111 +5,462 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Discord Video Library</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #0e0f11; --surface: #16181c; --surface2: #1e2025; --surface3: #25282f;
-  --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.13);
-  --text: #e8e9eb; --text-muted: #7c7f87; --text-dim: #4a4d55;
-  --accent: #5865F2; --accent-hover: #4752c4; --accent-bg: rgba(88,101,242,0.12); --accent-text: #8b9cff;
-  --radius: 8px; --radius-lg: 14px;
-}
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
-.app { max-width: 1280px; margin: 0 auto; padding: 0 24px 60px; }
-.topbar { display: flex; align-items: center; gap: 12px; padding: 24px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
-.logo { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.logo svg { width: 20px; height: 20px; fill: #fff; }
-.topbar-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
-.topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
-.topbar-count { margin-left: auto; background: var(--accent-bg); color: var(--accent-text); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; display: none; }
-.config { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; }
-.config-grid { display: grid; grid-template-columns: 2fr 1.5fr 0.7fr; gap: 14px; margin-bottom: 16px; }
-.field label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
-.field input { width: 100%; background: var(--surface3); border: 1px solid var(--border); border-radius: var(--radius); padding: 9px 12px; font-size: 13px; color: var(--text); font-family: 'SF Mono', 'Fira Code', monospace; transition: border-color 0.15s; outline: none; }
-.field input:focus { border-color: var(--accent); }
-.field input::placeholder { color: var(--text-dim); font-family: -apple-system, sans-serif; }
-.config-actions { display: flex; align-items: center; gap: 10px; }
-.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: background 0.15s, opacity 0.15s; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-hover); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-ghost { background: var(--surface3); color: var(--text-muted); border: 1px solid var(--border); }
-.btn-ghost:hover { color: var(--text); border-color: var(--border-hover); }
-.status-msg { margin-left: auto; font-size: 12px; color: var(--text-muted); }
-.status-msg.error { color: #f47f7f; }
-.tip { margin-top: 14px; padding: 10px 14px; background: rgba(250,190,60,0.07); border: 1px solid rgba(250,190,60,0.18); border-radius: var(--radius); font-size: 12px; color: #c9a84c; line-height: 1.6; }
-.tip strong { color: #e2b95a; }
-.progress-bar-wrap { height: 3px; background: var(--surface3); border-radius: 2px; margin-top: 14px; overflow: hidden; display: none; }
-.progress-bar { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.3s; }
-.toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
-.pill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-muted); transition: all 0.12s; letter-spacing: 0.3px; }
-.pill:hover { border-color: var(--border-hover); color: var(--text); }
-.pill.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent-text); }
-.search-wrap { margin-left: auto; position: relative; }
-.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--text-dim); pointer-events: none; }
-.search-input { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 6px 12px 6px 30px; font-size: 12px; color: var(--text); outline: none; width: 180px; transition: border-color 0.15s, width 0.2s; }
-.search-input:focus { border-color: var(--accent); width: 220px; }
-.search-input::placeholder { color: var(--text-dim); }
-.sort-select { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 10px; font-size: 12px; color: var(--text-muted); outline: none; cursor: pointer; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
-.empty { grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-dim); }
-.empty-icon { width: 56px; height: 56px; background: var(--surface2); border-radius: 16px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; }
-.empty-icon svg { width: 28px; height: 28px; stroke: var(--text-dim); fill: none; }
-.empty h3 { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-.empty p { font-size: 13px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: border-color 0.15s, transform 0.15s; position: relative; }
-.card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.thumb { position: relative; width: 100%; padding-top: 56.25%; background: var(--surface3); overflow: hidden; }
-.thumb video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-.thumb-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim); }
-.thumb-placeholder svg { width: 32px; height: 32px; stroke: currentColor; fill: none; }
-.thumb-placeholder span { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-.play-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.15s; }
-.card:hover .play-overlay { opacity: 1; }
-.play-btn { width: 44px; height: 44px; background: rgba(255,255,255,0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.play-btn svg { width: 18px; height: 18px; fill: #111; margin-left: 2px; }
-.duration-badge { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; font-family: 'SF Mono', monospace; backdrop-filter: blur(4px); }
-.card-body { padding: 12px 14px; }
-.card-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); margin-bottom: 6px; }
-.card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.ext-badge { background: var(--accent-bg); color: var(--accent-text); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
-.meta-text { font-size: 11px; color: var(--text-muted); }
-.meta-dot { color: var(--text-dim); font-size: 10px; }
-.card-author { display: flex; align-items: center; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
-.avatar { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0; }
-.author-name { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
-.modal-overlay.open { display: flex; }
-.modal { background: var(--surface); border: 1px solid var(--border-hover); border-radius: 18px; width: 100%; max-width: 820px; overflow: hidden; animation: pop 0.18s ease; }
-@keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
-.modal-title { font-size: 14px; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.modal-close { background: var(--surface3); border: none; border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); flex-shrink: 0; transition: background 0.12s; }
-.modal-close:hover { background: var(--border-hover); color: var(--text); }
-.modal-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
-.modal video { width: 100%; max-height: 65vh; display: block; background: #000; }
-.modal-footer { display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-top: 1px solid var(--border); }
-.modal-meta { font-size: 12px; color: var(--text-muted); flex: 1; line-height: 1.7; }
-.modal-meta strong { color: var(--text); font-weight: 500; }
-.btn-download { background: var(--accent); color: #fff; text-decoration: none; padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; transition: background 0.15s; }
-.btn-download:hover { background: var(--accent-hover); }
-.btn-download svg { width: 15px; height: 15px; stroke: #fff; fill: none; flex-shrink: 0; }
-@media (max-width: 600px) {
-  .config-grid { grid-template-columns: 1fr; }
-  .toolbar { flex-direction: column; align-items: flex-start; }
-  .search-wrap { width: 100%; }
-  .search-input { width: 100%; }
-  .search-input:focus { width: 100%; }
-  .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2025;
+    --surface3: #25282f;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.13);
+    --text: #e8e9eb;
+    --text-muted: #7c7f87;
+    --text-dim: #4a4d55;
+    --accent: #5865F2;
+    --accent-hover: #4752c4;
+    --accent-bg: rgba(88,101,242,0.12);
+    --accent-text: #8b9cff;
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+ 
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+ 
+  /* Layout */
+  .app { max-width: 1280px; margin: 0 auto; padding: 0 24px 60px; }
+ 
+  /* Header */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo svg { width: 20px; height: 20px; fill: #fff; }
+  .topbar-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .topbar-count {
+    margin-left: auto;
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: none;
+  }
+ 
+  /* Config panel */
+  .config {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .config-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 0.7fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--text-dim); font-family: -apple-system, sans-serif; }
+ 
+  .config-actions { display: flex; align-items: center; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost {
+    background: var(--surface3);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border-hover); }
+ 
+  .status-msg {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .status-msg.error { color: #f47f7f; }
+ 
+  .tip {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(250,190,60,0.07);
+    border: 1px solid rgba(250,190,60,0.18);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: #c9a84c;
+    line-height: 1.6;
+  }
+  .tip strong { color: #e2b95a; }
+ 
+  /* Progress */
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--surface3);
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+    display: none;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s;
+  }
+ 
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    transition: all 0.12s;
+    letter-spacing: 0.3px;
+  }
+  .pill:hover { border-color: var(--border-hover); color: var(--text); }
+  .pill.active {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--accent-text);
+  }
+  .search-wrap {
+    margin-left: auto;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    stroke: var(--text-dim);
+    pointer-events: none;
+  }
+  .search-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px 6px 30px;
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+    width: 180px;
+    transition: border-color 0.15s, width 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); width: 220px; }
+  .search-input::placeholder { color: var(--text-dim); }
+ 
+  /* Sort */
+  .sort-select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    outline: none;
+    cursor: pointer;
+  }
+ 
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+  }
+ 
+  /* Empty */
+  .empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-dim);
+  }
+  .empty-icon {
+    width: 56px; height: 56px;
+    background: var(--surface2);
+    border-radius: 16px;
+    margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-icon svg { width: 28px; height: 28px; stroke: var(--text-dim); fill: none; }
+  .empty h3 { font-size: 15px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+  .empty p { font-size: 13px; }
+ 
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+  }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+ 
+  .thumb {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: var(--surface3);
+    overflow: hidden;
+  }
+  .thumb video {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .thumb-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px;
+    color: var(--text-dim);
+  }
+  .thumb-placeholder svg { width: 32px; height: 32px; stroke: currentColor; fill: none; }
+  .thumb-placeholder span { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+ 
+  .play-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.35);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .card:hover .play-overlay { opacity: 1; }
+  .play-btn {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .play-btn svg { width: 18px; height: 18px; fill: #111; margin-left: 2px; }
+ 
+  .duration-badge {
+    position: absolute;
+    bottom: 8px; right: 8px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'SF Mono', monospace;
+    backdrop-filter: blur(4px);
+  }
+ 
+  .card-body { padding: 12px 14px; }
+  .card-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ext-badge {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .meta-text { font-size: 11px; color: var(--text-muted); }
+  .meta-dot { color: var(--text-dim); font-size: 10px; }
+ 
+  .card-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .avatar {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .author-name { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ 
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.85);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(6px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-hover);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 820px;
+    overflow: hidden;
+    animation: pop 0.18s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(0.95); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title { font-size: 14px; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-close {
+    background: var(--surface3);
+    border: none;
+    border-radius: 8px;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.12s;
+  }
+  .modal-close:hover { background: var(--border-hover); color: var(--text); }
+  .modal-close svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+  .modal video {
+    width: 100%;
+    max-height: 65vh;
+    display: block;
+    background: #000;
+  }
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-meta { font-size: 12px; color: var(--text-muted); flex: 1; line-height: 1.7; }
+  .modal-meta strong { color: var(--text); font-weight: 500; }
+  .btn-download {
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .btn-download:hover { background: var(--accent-hover); }
+  .btn-download svg { width: 15px; height: 15px; stroke: #fff; fill: none; flex-shrink: 0; }
+ 
+  @media (max-width: 600px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+    .search-wrap { width: 100%; }
+    .search-input { width: 100%; }
+    .search-input:focus { width: 100%; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  }
 </style>
 </head>
 <body>
 <div class="app">
+ 
+  <!-- Header -->
   <div class="topbar">
     <div class="logo">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.001.022.012.04.028.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.001.022.012.04.028.054a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+      </svg>
     </div>
     <div>
       <div class="topbar-title">Video library</div>
@@ -117,12 +468,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
     <div class="topbar-count" id="topbarCount"></div>
   </div>
-
+ 
+  <!-- Config -->
   <div class="config">
     <div class="config-grid">
       <div class="field">
-        <label>Bot token</label>
-        <input type="password" id="token" placeholder="Your Discord BOT token" autocomplete="off" spellcheck="false">
+        <label>User token</label>
+        <input type="password" id="token" placeholder="Your Discord authorization token" autocomplete="off" spellcheck="false">
       </div>
       <div class="field">
         <label>Channel ID</label>
@@ -134,19 +486,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </div>
     </div>
     <div class="config-actions">
-      <button class="btn btn-primary" id="fetchBtn" onclick="fetchVideos()">Fetch videos</button>
+      <button class="btn btn-primary" id="fetchBtn" onclick="fetchVideos()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5,3 19,12 5,21"/></svg>
+        Fetch videos
+      </button>
       <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
       <span class="status-msg" id="statusMsg"></span>
     </div>
-    <div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-bar-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
     <div class="tip">
-      <strong>Use a bot token, not a user token:</strong> Create an application at
-      <strong>discord.com/developers/applications</strong>, add a Bot, copy its token, enable the
-      "Message Content Intent", and invite it to your server with View Channels + Read Message History
-      permissions. Your token is only used to call Discord's API directly from this page and is never sent anywhere else.
+      <strong>How to find your token:</strong> Open Discord in your browser → press F12 → go to the Network tab → click any request → look for the <strong>Authorization</strong> header value. Your token stays in this file and is never sent anywhere except Discord's API.
     </div>
   </div>
-
+ 
+  <!-- Toolbar -->
   <div class="toolbar" id="toolbar" style="display:none">
     <div class="filter-pills" id="filterPills">
       <button class="pill active" data-ext="all" onclick="setFilter(this,'all')">All</button>
@@ -162,189 +517,244 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <input type="text" class="search-input" id="searchBox" placeholder="Search filenames…" oninput="renderGrid()">
     </div>
   </div>
-
+ 
+  <!-- Grid -->
   <div class="grid" id="grid">
     <div class="empty">
-      <div class="empty-icon"><svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
       <h3>No videos loaded</h3>
-      <p>Enter your bot token and channel ID above, then hit Fetch videos.</p>
+      <p>Enter your token and channel ID above, then hit Fetch videos.</p>
     </div>
   </div>
+ 
 </div>
-
+ 
+<!-- Modal -->
 <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle"></span>
-      <button class="modal-close" onclick="closeModal()" aria-label="Close"><svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <video id="modalVideo" controls playsinline></video>
     <div class="modal-footer">
       <div class="modal-meta" id="modalMeta"></div>
-      <a class="btn-download" id="modalDl" href="#" target="_blank"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download</a>
+      <a class="btn-download" id="modalDl" href="#" target="_blank">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </a>
     </div>
   </div>
 </div>
-
+ 
 <script>
-const VIDEO_EXTS = ['mp4','mov','webm','mkv','avi','m4v','wmv','flv','ogg','ts','3gp'];
-let allVideos = [];
-let activeExt = 'all';
-
-function ext(name) { return (name.split('.').pop() || '').toLowerCase(); }
-function fmtSize(b) { if (!b) return ''; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
-function fmtDate(s) { return new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
-function fmtDuration(secs) { if (!secs) return null; const m = Math.floor(secs / 60), s = Math.floor(secs % 60); return `${m}:${String(s).padStart(2,'0')}`; }
-function initials(name) { return (name || '?').slice(0,1).toUpperCase(); }
-function setStatus(msg, type) { const el = document.getElementById('statusMsg'); el.textContent = msg; el.className = 'status-msg' + (type ? ' ' + type : ''); }
-function setProgress(pct) {
-  const wrap = document.getElementById('progressWrap');
-  const bar = document.getElementById('progressBar');
-  if (pct <= 0) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  bar.style.width = Math.min(100, pct) + '%';
-  if (pct >= 100) setTimeout(() => { wrap.style.display = 'none'; }, 600);
-}
-
-async function fetchVideos() {
-  const tokenRaw = 'MTUzNjMxNzc5NDk5MDE2MjAzMA.GHL5_k.akheIrWn2ff5cfJceOYVNkMYGdtxRqAW0urQKk'
-  const channelId = '1493099527111049228'
-  const limit = Math.min(500, Math.max(10, parseInt(document.getElementById('limit').value) || 200));
-
-  if (!tokenRaw || !channelId) { setStatus('Enter bot token and channel ID', 'error'); return; }
-
-  // Accept the token whether or not the user already typed "Bot " in front of it
-  const authHeader = tokenRaw.toLowerCase().startsWith('bot ') ? tokenRaw : `Bot ${tokenRaw}`;
-
-  const btn = document.getElementById('fetchBtn');
-  btn.disabled = true;
-  allVideos = [];
-  setStatus('Scanning messages…');
-  setProgress(5);
-
-  try {
-    let before = null, fetched = 0;
-    while (fetched < limit) {
-      const batchSize = Math.min(100, limit - fetched);
-      let url = `https://discord.com/api/v10/channels/${channelId}/messages?limit=${batchSize}`;
-      if (before) url += `&before=${before}`;
-
-      const res = await fetch(url, {
-        headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' }
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `HTTP ${res.status}`);
-      }
-
-      const msgs = await res.json();
-      if (!msgs.length) break;
-
-      for (const m of msgs) {
-        for (const a of (m.attachments || [])) {
-          const e = ext(a.filename);
-          if (VIDEO_EXTS.includes(e)) {
-            allVideos.push({
-              url: a.url, proxy: a.proxy_url, name: a.filename, size: a.size, ext: e,
-              date: m.timestamp, author: m.author?.username || '',
-              width: a.width, height: a.height, duration: a.duration_secs || null,
-            });
+  const VIDEO_EXTS = ['mp4','mov','webm','mkv','avi','m4v','wmv','flv','ogg','ts','3gp'];
+  let allVideos = [];
+  let activeExt = 'all';
+ 
+  function ext(name) { return (name.split('.').pop() || '').toLowerCase(); }
+ 
+  function fmtSize(b) {
+    if (!b) return '';
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+    return (b / 1048576).toFixed(1) + ' MB';
+  }
+ 
+  function fmtDate(s) {
+    return new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+ 
+  function fmtDuration(secs) {
+    if (!secs) return null;
+    const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+ 
+  function initials(name) {
+    return (name || '?').slice(0,1).toUpperCase();
+  }
+ 
+  function setStatus(msg, type) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.className = 'status-msg' + (type ? ' ' + type : '');
+  }
+ 
+  function setProgress(pct) {
+    const wrap = document.getElementById('progressWrap');
+    const bar = document.getElementById('progressBar');
+    if (pct <= 0) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    bar.style.width = Math.min(100, pct) + '%';
+    if (pct >= 100) setTimeout(() => { wrap.style.display = 'none'; }, 600);
+  }
+ 
+  async function fetchVideos() {
+    const token = document.getElementById('token').value.trim();
+    const channelId = document.getElementById('channelId').value.trim();
+    const limit = Math.min(500, Math.max(10, parseInt(document.getElementById('limit').value) || 200));
+ 
+    if (!token || !channelId) { setStatus('Enter token and channel ID', 'error'); return; }
+ 
+    const btn = document.getElementById('fetchBtn');
+    btn.disabled = true;
+    allVideos = [];
+    setStatus('Scanning messages…');
+    setProgress(5);
+ 
+    try {
+      let before = null, fetched = 0;
+ 
+      while (fetched < limit) {
+        const batchSize = Math.min(100, limit - fetched);
+        let url = `https://discord.com/api/v10/channels/${channelId}/messages?limit=${batchSize}`;
+        if (before) url += `&before=${before}`;
+ 
+        const res = await fetch(url, {
+          headers: { 'Authorization': token, 'Content-Type': 'application/json' }
+        });
+ 
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `HTTP ${res.status}`);
+        }
+ 
+        const msgs = await res.json();
+        if (!msgs.length) break;
+ 
+        for (const m of msgs) {
+          for (const a of (m.attachments || [])) {
+            const e = ext(a.filename);
+            if (VIDEO_EXTS.includes(e)) {
+              allVideos.push({
+                url: a.url,
+                proxy: a.proxy_url,
+                name: a.filename,
+                size: a.size,
+                ext: e,
+                date: m.timestamp,
+                author: m.author?.username || '',
+                width: a.width,
+                height: a.height,
+                duration: a.duration_secs || null,
+              });
+            }
+          }
+          for (const em of (m.embeds || [])) {
+            if (em.video?.url) {
+              allVideos.push({
+                url: em.video.url,
+                proxy: em.video.proxy_url || em.video.url,
+                name: em.title || 'Embedded video',
+                size: null,
+                ext: 'mp4',
+                date: m.timestamp,
+                author: m.author?.username || '',
+                duration: null,
+              });
+            }
           }
         }
-        for (const em of (m.embeds || [])) {
-          if (em.video?.url) {
-            allVideos.push({
-              url: em.video.url, proxy: em.video.proxy_url || em.video.url,
-              name: em.title || 'Embedded video', size: null, ext: 'mp4',
-              date: m.timestamp, author: m.author?.username || '', duration: null,
-            });
-          }
-        }
+ 
+        fetched += msgs.length;
+        setProgress(Math.round((fetched / limit) * 90));
+        setStatus(`Scanned ${fetched} messages — found ${allVideos.length} video${allVideos.length !== 1 ? 's' : ''}…`);
+        before = msgs[msgs.length - 1].id;
+        if (msgs.length < batchSize) break;
+        await new Promise(r => setTimeout(r, 250));
       }
-
-      fetched += msgs.length;
-      setProgress(Math.round((fetched / limit) * 90));
-      setStatus(`Scanned ${fetched} messages — found ${allVideos.length} video${allVideos.length !== 1 ? 's' : ''}…`);
-      before = msgs[msgs.length - 1].id;
-      if (msgs.length < batchSize) break;
-      await new Promise(r => setTimeout(r, 250));
+ 
+      setProgress(100);
+      buildToolbar();
+      renderGrid();
+      setStatus(`Found ${allVideos.length} video${allVideos.length !== 1 ? 's' : ''} across ${fetched} messages`);
+ 
+      const count = document.getElementById('topbarCount');
+      count.textContent = allVideos.length + ' videos';
+      count.style.display = allVideos.length ? 'block' : 'none';
+ 
+    } catch (e) {
+      setStatus('Error: ' + e.message, 'error');
+      setProgress(0);
     }
-
-    setProgress(100);
-    buildToolbar();
+ 
+    btn.disabled = false;
+  }
+ 
+  function buildToolbar() {
+    const exts = [...new Set(allVideos.map(v => v.ext))].sort();
+    const pills = document.getElementById('filterPills');
+    pills.innerHTML = '<button class="pill active" data-ext="all" onclick="setFilter(this,\'all\')">All</button>';
+    exts.forEach(e => {
+      const b = document.createElement('button');
+      b.className = 'pill';
+      b.dataset.ext = e;
+      b.textContent = e.toUpperCase();
+      b.onclick = () => setFilter(b, e);
+      pills.appendChild(b);
+    });
+    document.getElementById('toolbar').style.display = allVideos.length ? 'flex' : 'none';
+  }
+ 
+  function setFilter(btn, e) {
+    activeExt = e;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
     renderGrid();
-    setStatus(`Found ${allVideos.length} video${allVideos.length !== 1 ? 's' : ''} across ${fetched} messages`);
-    const count = document.getElementById('topbarCount');
-    count.textContent = allVideos.length + ' videos';
-    count.style.display = allVideos.length ? 'block' : 'none';
-  } catch (e) {
-    setStatus('Error: ' + e.message, 'error');
-    setProgress(0);
   }
-  btn.disabled = false;
-}
-
-function buildToolbar() {
-  const exts = [...new Set(allVideos.map(v => v.ext))].sort();
-  const pills = document.getElementById('filterPills');
-  pills.innerHTML = '<button class="pill active" data-ext="all" onclick="setFilter(this,\'all\')">All</button>';
-  exts.forEach(e => {
-    const b = document.createElement('button');
-    b.className = 'pill';
-    b.dataset.ext = e;
-    b.textContent = e.toUpperCase();
-    b.onclick = () => setFilter(b, e);
-    pills.appendChild(b);
-  });
-  document.getElementById('toolbar').style.display = allVideos.length ? 'flex' : 'none';
-}
-
-function setFilter(btn, e) {
-  activeExt = e;
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  renderGrid();
-}
-
-function getFiltered() {
-  const q = (document.getElementById('searchBox').value || '').toLowerCase();
-  const sort = document.getElementById('sortSelect').value;
-  let vids = allVideos.filter(v =>
-    (activeExt === 'all' || v.ext === activeExt) &&
-    (!q || v.name.toLowerCase().includes(q))
-  );
-  if (sort === 'newest') vids.sort((a,b) => new Date(b.date) - new Date(a.date));
-  else if (sort === 'oldest') vids.sort((a,b) => new Date(a.date) - new Date(b.date));
-  else if (sort === 'largest') vids.sort((a,b) => (b.size||0) - (a.size||0));
-  else if (sort === 'name') vids.sort((a,b) => a.name.localeCompare(b.name));
-  return vids;
-}
-
-function renderGrid() {
-  const vids = getFiltered();
-  const grid = document.getElementById('grid');
-  if (!vids.length) {
-    grid.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon"><svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <h3>${allVideos.length ? 'No matches' : 'No videos loaded'}</h3>
-        <p>${allVideos.length ? 'Try a different filter or search term.' : 'Enter your bot token and channel ID above.'}</p>
-      </div>`;
-    return;
+ 
+  function getFiltered() {
+    const q = (document.getElementById('searchBox').value || '').toLowerCase();
+    const sort = document.getElementById('sortSelect').value;
+    let vids = allVideos.filter(v =>
+      (activeExt === 'all' || v.ext === activeExt) &&
+      (!q || v.name.toLowerCase().includes(q))
+    );
+    if (sort === 'newest') vids.sort((a,b) => new Date(b.date) - new Date(a.date));
+    else if (sort === 'oldest') vids.sort((a,b) => new Date(a.date) - new Date(b.date));
+    else if (sort === 'largest') vids.sort((a,b) => (b.size||0) - (a.size||0));
+    else if (sort === 'name') vids.sort((a,b) => a.name.localeCompare(b.name));
+    return vids;
   }
-  grid.innerHTML = vids.map((v) => {
-    const idx = allVideos.indexOf(v);
-    const dur = v.duration ? fmtDuration(v.duration) : '';
-    return `
+ 
+  function renderGrid() {
+    const vids = getFiltered();
+    const grid = document.getElementById('grid');
+    if (!vids.length) {
+      grid.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>${allVideos.length ? 'No matches' : 'No videos loaded'}</h3>
+          <p>${allVideos.length ? 'Try a different filter or search term.' : 'Enter your token and channel ID above.'}</p>
+        </div>`;
+      return;
+    }
+ 
+    grid.innerHTML = vids.map((v) => {
+      const idx = allVideos.indexOf(v);
+      const dur = v.duration ? fmtDuration(v.duration) : '';
+      return `
       <div class="card" onclick="openModal(${idx})" tabindex="0" role="button" aria-label="Play ${v.name}" onkeydown="if(event.key==='Enter')openModal(${idx})">
         <div class="thumb">
-          <video src="${v.proxy || v.url}#t=0.5" preload="metadata" muted onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"></video>
+          <video src="${v.proxy || v.url}#t=0.5" preload="metadata" muted
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          </video>
           <div class="thumb-placeholder" style="display:none">
             <svg viewBox="0 0 24 24" stroke-width="1.5"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             <span>${v.ext}</span>
           </div>
-          <div class="play-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div></div>
+          <div class="play-overlay">
+            <div class="play-btn">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
+          </div>
           ${dur ? `<div class="duration-badge">${dur}</div>` : ''}
         </div>
         <div class="card-body">
@@ -362,52 +772,58 @@ function renderGrid() {
           </div>` : ''}
         </div>
       </div>`;
-  }).join('');
-}
-
-function openModal(idx) {
-  const v = allVideos[idx];
-  document.getElementById('modalTitle').textContent = v.name;
-  const vid = document.getElementById('modalVideo');
-  vid.src = v.proxy || v.url;
-  vid.play().catch(() => {});
-  const parts = [
-    v.author ? `<strong>@${v.author}</strong>` : '',
-    fmtDate(v.date),
-    fmtSize(v.size),
-    v.width && v.height ? `${v.width}×${v.height}` : '',
-  ].filter(Boolean);
-  document.getElementById('modalMeta').innerHTML = parts.join(' &nbsp;·&nbsp; ');
-  const dl = document.getElementById('modalDl');
-  dl.href = v.url;
-  dl.download = v.name;
-  document.getElementById('modal').classList.add('open');
-  document.addEventListener('keydown', handleEsc);
-}
-
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  const vid = document.getElementById('modalVideo');
-  vid.pause();
-  vid.src = '';
-  document.removeEventListener('keydown', handleEsc);
-}
-
-function handleOverlayClick(e) { if (e.target === document.getElementById('modal')) closeModal(); }
-function handleEsc(e) { if (e.key === 'Escape') closeModal(); }
-
-function clearAll() {
-  allVideos = [];
-  activeExt = 'all';
-  document.getElementById('toolbar').style.display = 'none';
-  document.getElementById('topbarCount').style.display = 'none';
-  setStatus('');
-  setProgress(0);
-  renderGrid();
-}
-
-document.getElementById('token').addEventListener('keydown', e => { if (e.key === 'Enter') fetchVideos(); });
-document.getElementById('channelId').addEventListener('keydown', e => { if (e.key === 'Enter') fetchVideos(); });
+    }).join('');
+  }
+ 
+  function openModal(idx) {
+    const v = allVideos[idx];
+    document.getElementById('modalTitle').textContent = v.name;
+    const vid = document.getElementById('modalVideo');
+    vid.src = v.proxy || v.url;
+    vid.play().catch(() => {});
+ 
+    const parts = [
+      v.author ? `<strong>@${v.author}</strong>` : '',
+      fmtDate(v.date),
+      fmtSize(v.size),
+      v.width && v.height ? `${v.width}×${v.height}` : '',
+    ].filter(Boolean);
+    document.getElementById('modalMeta').innerHTML = parts.join(' &nbsp;·&nbsp; ');
+ 
+    const dl = document.getElementById('modalDl');
+    dl.href = v.url;
+    dl.download = v.name;
+ 
+    document.getElementById('modal').classList.add('open');
+    document.addEventListener('keydown', handleEsc);
+  }
+ 
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    const vid = document.getElementById('modalVideo');
+    vid.pause(); vid.src = '';
+    document.removeEventListener('keydown', handleEsc);
+  }
+ 
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+ 
+  function handleEsc(e) { if (e.key === 'Escape') closeModal(); }
+ 
+  function clearAll() {
+    allVideos = [];
+    activeExt = 'all';
+    document.getElementById('toolbar').style.display = 'none';
+    document.getElementById('topbarCount').style.display = 'none';
+    setStatus('');
+    setProgress(0);
+    renderGrid();
+  }
+ 
+  document.getElementById('token').addEventListener('keydown', e => { if (e.key === 'Enter') fetchVideos(); });
+  document.getElementById('channelId').addEventListener('keydown', e => { if (e.key === 'Enter') fetchVideos(); });
 </script>
 </body>
 </html>
+ 
