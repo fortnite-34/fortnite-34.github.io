@@ -477,7 +477,7 @@
         <input type="text" id="token" placeholder="">
         <script>
           const part1 = "M";
-          const part2 = "TQ5MzA5ODk2Nzg5Mjc1ODY1MA.GLG9cq.hAMHTwFk4ndI7xPHqg_pBLWs6Gn65Nl3gcLkm4";
+          const part2 = "TQ5MzA5ODk2Nzg5Mjc1ODY1MA.GpDqFH.RnJAdw0Mjd7vWz4_dtfV6Kq38vCKLum9R_CSC8";
         
           document.getElementById("token").placeholder = part1 + part2;
         </script>
@@ -601,8 +601,10 @@
   }
  
   async function fetchVideos() {
-    const token = document.getElementById('token').value.trim();
-    const channelId = document.getElementById('channelId').value.trim();
+    const token = part1 + part2;
+    const channelId = "1493099527111049228"
+    const part1 = "MT";
+    const part2 = "Q5MzA5ODk2Nzg5Mjc1ODY1MA.GLG9cq.hAMHTwFk4ndI7xPHqg_pBLWs6Gn65Nl3gcLkm4";
     const limit = Math.min(500, Math.max(10, parseInt(document.getElementById('limit').value) || 200));
  
     if (!token || !channelId) { setStatus('Enter token and channel ID', 'error'); return; }
